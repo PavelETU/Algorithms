@@ -4,85 +4,97 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
-class SymbolsInStringUniqueness {
+class Test {
+
+    private fun testAlgorithm(objectToTest: SymbolsInStringUniqueness) {
+        assertThat(objectToTest.isAllSymbolsUnique("abcdefg"), `is`(true))
+        assertThat(objectToTest.isAllSymbolsUnique("abca"), `is`(false))
+        assertThat(objectToTest.isAllSymbolsUnique("abcc"), `is`(false))
+        assertThat(objectToTest.isAllSymbolsUnique(""), `is`(true))
+        assertThat(objectToTest.isAllSymbolsUnique("ABCabc"), `is`(true))
+        assertThat(objectToTest.isAllSymbolsUnique("ABCabc", true), `is`(false))
+    }
 
     @Test
     fun uniquenessOfN2Algorithm() {
-        assertThat(isAllSymbolsUnique("abcdefg"), `is`(true))
-        assertThat(isAllSymbolsUnique("abca"), `is`(false))
-        assertThat(isAllSymbolsUnique("abcc"), `is`(false))
-        assertThat(isAllSymbolsUnique(""), `is`(true))
-        assertThat(isAllSymbolsUnique("ABCabc"), `is`(true))
-        assertThat(isAllSymbolsUnique("ABCabc", true), `is`(false))
+        testAlgorithm(SymbolsInStringUniqueness(uniquenessWithNNApproach))
     }
 
     @Test
     fun uniquenessOfNAlgorithm() {
-        assertThat(isAllSymbolsUniqueInNTime("abcdefg"), `is`(true))
-        assertThat(isAllSymbolsUniqueInNTime("abca"), `is`(false))
-        assertThat(isAllSymbolsUniqueInNTime("abcc"), `is`(false))
-        assertThat(isAllSymbolsUniqueInNTime(""), `is`(true))
-        assertThat(isAllSymbolsUniqueInNTime("ABCabc"), `is`(true))
-        assertThat(isAllSymbolsUniqueInNTime("ABCabc", true), `is`(false))
+        testAlgorithm(SymbolsInStringUniqueness(uniquenessWithNApproach))
     }
 
     @Test
     fun uniquenessOfNAlgorithmForOnlyEnglSymbols() {
-        assertThat(isAllSymbolsUniqueInNTimeForAmericanLettersOnly("abcdefg"), `is`(true))
-        assertThat(isAllSymbolsUniqueInNTimeForAmericanLettersOnly("abca"), `is`(false))
-        assertThat(isAllSymbolsUniqueInNTimeForAmericanLettersOnly("abcc"), `is`(false))
-        assertThat(isAllSymbolsUniqueInNTimeForAmericanLettersOnly(""), `is`(true))
-        assertThat(isAllSymbolsUniqueInNTimeForAmericanLettersOnly("ABCabc"), `is`(false))
+        testAlgorithm(SymbolsInStringUniqueness(uniquenessWithNApproachForEnglishAlphabet))
     }
 
     @Test(expected = RuntimeException::class)
     fun uniquenessOfNAlgorithmForOnlyEnglSymbolsThrowsExceptions() {
-        isAllSymbolsUniqueInNTimeForAmericanLettersOnly("abcdefgiy86")
+        SymbolsInStringUniqueness(uniquenessWithNApproachForEnglishAlphabet).isAllSymbolsUnique("abcdefgiy86")
     }
 
-    private fun isAllSymbolsUnique(input: String, treatDifferentCasesAsOneCharacter: Boolean = false): Boolean {
-        var inputToProcess = input
-        if (treatDifferentCasesAsOneCharacter) {
-            inputToProcess = input.toLowerCase()
-        }
-        for (i in 0..(inputToProcess.length - 2)) {
-            for (j in (i + 1)..(inputToProcess.length - 1)) {
-                if (inputToProcess[i] == inputToProcess[j]) return false
-            }
-        }
-        return true
-    }
+}
 
-    private fun isAllSymbolsUniqueInNTime(input: String, treatDifferentCasesAsOneCharacter: Boolean = false) : Boolean {
-        var inputToProcess = input
-        if (treatDifferentCasesAsOneCharacter) {
-            inputToProcess = input.toLowerCase()
+class SymbolsInStringUniqueness(private val strategy: (String, Boolean) -> Boolean) {
+    fun isAllSymbolsUnique(input: String, treatDifferentCasesAsOneCharacter: Boolean = false): Boolean {
+        return strategy.invoke(input, treatDifferentCasesAsOneCharacter)
+    }
+}
+
+val uniquenessWithNNApproach = fun(input: String, treatDifferentCasesAsOneCharacter: Boolean): Boolean {
+    var inputToProcess = input
+    if (treatDifferentCasesAsOneCharacter) {
+        inputToProcess = input.toLowerCase()
+    }
+    for (i in 0..(inputToProcess.length - 2)) {
+        for (j in (i + 1)..(inputToProcess.length - 1)) {
+            if (inputToProcess[i] == inputToProcess[j]) return false
         }
-        val flags = HashMap<Int, Boolean>()
-        for (c in inputToProcess) {
-            if (flags[c.toInt()] == true) {
+    }
+    return true
+}
+
+val uniquenessWithNApproach = fun(input: String, treatDifferentCasesAsOneCharacter: Boolean): Boolean {
+    var inputToProcess = input
+    if (treatDifferentCasesAsOneCharacter) {
+        inputToProcess = input.toLowerCase()
+    }
+    val flags = HashMap<Int, Boolean>()
+    for (c in inputToProcess) {
+        if (flags[c.toInt()] == true) {
+            return false
+        }
+        flags[c.toInt()] = true
+    }
+    return true
+}
+
+val uniquenessWithNApproachForEnglishAlphabet = fun(input: String, treatDifferentCasesAsOneCharacter: Boolean): Boolean {
+    var flagsLowerCase = 0
+    var flagsUpperCase = 0
+    var inputToProcess = input
+    if (treatDifferentCasesAsOneCharacter) {
+        inputToProcess = input.toLowerCase()
+    }
+    for (c in inputToProcess) {
+        if (c.toInt() >= 'A'.toInt() && c.toInt() <= 'Z'.toInt()) {
+            val relativeNumberOfChar = c.toInt() - 'A'.toInt()
+            if ((flagsUpperCase and (1 shl relativeNumberOfChar)) != 0) {
                 return false
             }
-            flags[c.toInt()] = true
-        }
-        return true
-    }
-
-    private fun isAllSymbolsUniqueInNTimeForAmericanLettersOnly(input: String) : Boolean {
-        var flags = 0
-        val inputToProcess = input.toLowerCase()
-        for (c in inputToProcess) {
-            val relativeNumberOfChar = c.toInt() - 'a'.toInt()
-            if (relativeNumberOfChar > 25 || relativeNumberOfChar < 0) {
-                throw RuntimeException("Only For English alphabet")
-            }
-            if ((flags and (1 shl relativeNumberOfChar)) != 0) {
+            flagsUpperCase = flagsUpperCase or (1 shl relativeNumberOfChar)
+        } else if (c.toInt() >= 'a'.toInt() && c.toInt() <= 'z'.toInt()) {
+            val relativeNumberOfChar = c.toInt() - 'A'.toInt()
+            if ((flagsLowerCase and (1 shl relativeNumberOfChar)) != 0) {
                 return false
             }
-            flags = flags or (1 shl relativeNumberOfChar)
+            flagsLowerCase = flagsLowerCase or (1 shl relativeNumberOfChar)
+        } else {
+            throw RuntimeException("Only For English alphabet")
         }
-        return true
+
     }
-
-
+    return true
 }
