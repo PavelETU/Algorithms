@@ -8,6 +8,7 @@ class Test {
 
     private fun testAlgorithm(objectToTest: SymbolsInStringUniqueness) {
         assertThat(objectToTest.isAllSymbolsUnique("abcdefg"), `is`(true))
+        assertThat(objectToTest.isAllSymbolsUnique("abcddefg"), `is`(false))
         assertThat(objectToTest.isAllSymbolsUnique("abca"), `is`(false))
         assertThat(objectToTest.isAllSymbolsUnique("abcc"), `is`(false))
         assertThat(objectToTest.isAllSymbolsUnique(""), `is`(true))
