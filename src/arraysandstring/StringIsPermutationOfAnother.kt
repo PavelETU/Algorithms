@@ -4,11 +4,15 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
+/*
+Check if one string permutation of other, i.e. all symbols of one string contains in other
+*/
 class StringIsPermutationOfAnother {
 
     @Test
     fun testPermutation() {
-        assertThat(isSecondStringPermutationOfFirst("g od", "d og"), `is`(true))
+        assertThat(isSecondStringPermutationOfFirst("god", "dog"), `is`(true))
+        assertThat(isSecondStringPermutationOfFirst("god", "dog "), `is`(false))
         assertThat(isSecondStringPermutationOfFirst("dba", "abc"), `is`(false))
         assertThat(isSecondStringPermutationOfFirst("gone", "oneg"), `is`(true))
         assertThat(isSecondStringPermutationOfFirst("bless", "lessb"), `is`(true))

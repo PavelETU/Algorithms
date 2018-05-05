@@ -4,6 +4,9 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
+/*
+All characters in string are unique
+ */
 class Test {
 
     private fun testAlgorithm(objectToTest: SymbolsInStringUniqueness) {
