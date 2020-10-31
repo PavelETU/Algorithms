@@ -1,14 +1,92 @@
 package treesandgraphs
 
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class TwoNodesAreConnected {
-    private fun notesAreConnected(graph: Graph<Int>, valueOfNodeOne: Int, valueOfNodeTwo: Int): Boolean {
-        val nodeOne = graph.findNode(valueOfNodeOne)
-        val nodeTwo = graph.findNode(valueOfNodeTwo)
-        throw RuntimeException("Not implemented yet")
+    private fun <T> nodesAreConnected(graph: Graph<T>, valueOfNodeOne: T, valueOfNodeTwo: T): Boolean {
+        if (valueOfNodeOne == valueOfNodeTwo) return true
+        val nodeOne = graph.findNode(valueOfNodeOne) ?: return false
+        val nodeTwo = graph.findNode(valueOfNodeTwo) ?: return false
+        val queue: Queue<Node<T>> = LinkedList(nodeOne.child ?: emptyList())
+        val queue2: Queue<Node<T>> = LinkedList(nodeTwo.child ?: emptyList())
+        if (nodeIsInTheChildOfNode(valueOfNodeTwo, queue)) return true
+        if (nodeIsInTheChildOfNode(valueOfNodeOne, queue2)) return true
+        return false
+    }
+
+    private fun <T> nodeIsInTheChildOfNode(valueToFind: T, queueOfValues: Queue<Node<T>>): Boolean {
+        while (queueOfValues.isNotEmpty()) {
+            val node = queueOfValues.poll()
+            if (node.value == valueToFind) {
+                return true
+            }
+            if (node.child != null) queueOfValues.addAll(node.child)
+        }
+        return false
+    }
+
+    @Test
+    fun testNodesInDeeperLayer() {
+        val firstNode1 = Node(8, null)
+        val secondNode1 = Node(126, null)
+        val firstNode2 = Node(9, listOf(Node(10, listOf(Node(11, null), secondNode1))))
+        val secondNode2 = Node(127, null)
+        val thirdNode1 = Node(90753, null)
+        val thirdNode2 = Node(90754, listOf(Node(90755, listOf(Node(90756, listOf(secondNode2, Node(90757, null)))))))
+        val graph = Graph(listOf(Node(88, listOf(firstNode1, firstNode2)),
+                Node(126126, listOf(secondNode1, secondNode2)),
+                Node(9075390753, listOf(thirdNode1, thirdNode2))))
+
+        assertTrue(nodesAreConnected(graph, 9, 126))
+        assertTrue(nodesAreConnected(graph, 126, 9))
+        assertTrue(nodesAreConnected(graph, 90754, 127))
+        assertTrue(nodesAreConnected(graph, 127, 90754))
+    }
+
+    @Test
+    fun testNodesInTheFirstLayer() {
+        val firstNode1 = Node(8, null)
+        val secondNode1 = Node(126, null)
+        val firstNode2 = Node(9, listOf(secondNode1))
+        val secondNode2 = Node(127, null)
+        val thirdNode1 = Node(90753, null)
+        val thirdNode2 = Node(90754, listOf(secondNode2))
+        val graph = Graph(listOf(Node(88, listOf(firstNode1, firstNode2)),
+                Node(126126, listOf(secondNode1, secondNode2)),
+                Node(9075390753, listOf(thirdNode1, thirdNode2))))
+
+        assertTrue(nodesAreConnected(graph, 9, 126))
+        assertTrue(nodesAreConnected(graph, 126, 9))
+        assertTrue(nodesAreConnected(graph, 90754, 127))
+        assertTrue(nodesAreConnected(graph, 127, 90754))
+    }
+
+    @Test
+    fun testEdgeCaseWithSameNodes() {
+        val firstNode1 = Node(8, null)
+        val graph = Graph(listOf(Node(88, listOf(firstNode1))))
+
+        assertTrue(nodesAreConnected(graph, 8, 8))
+    }
+
+    @Test
+    fun testIfNodesAreNotInGraphTheyAreNotConnected() {
+        val firstNode1 = Node(8, null)
+        val firstNode2 = Node(9, null)
+        val secondNode1 = Node(126, null)
+        val secondNode2 = Node(127, null)
+        val thirdNode1 = Node(90753, null)
+        val thirdNode2 = Node(90754, null)
+        val graph = Graph(listOf(Node(88, listOf(firstNode1, firstNode2)),
+                Node(126126, listOf(secondNode1, secondNode2)),
+                Node(9075390753, listOf(thirdNode1, thirdNode2))))
+
+        assertFalse(nodesAreConnected(graph, 1, 8))
+        assertFalse(nodesAreConnected(graph, 8, 1))
     }
 
     private fun <T> Graph<T>.findNode(nodeToFind: T): Node<T>? {
