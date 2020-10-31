@@ -1,6 +1,7 @@
 package treesandgraphs
 
 import org.junit.Test
+import java.util.*
 import kotlin.test.assertEquals
 
 class TwoNodesAreConnected {
@@ -11,9 +12,19 @@ class TwoNodesAreConnected {
     }
 
     private fun <T> Graph<T>.findNode(nodeToFind: T): Node<T>? {
+        val queue: Queue<Node<T>> = LinkedList()
         for (node in nodes) {
             if (node.value == nodeToFind) {
                 return node
+            }
+            queue.add(node)
+        }
+        while(queue.isNotEmpty()) {
+            val nodesToIterate = queue.poll().child ?: continue
+            for (node in nodesToIterate) {
+                if (node.value == nodeToFind) {
+                    return node
+                }
             }
         }
         return null
@@ -30,6 +41,27 @@ class TwoNodesAreConnected {
         assertEquals(secondNode, graph.findNode(126))
         assertEquals(thirdNode, graph.findNode(90753))
         assertEquals(null, graph.findNode(53))
+    }
+
+    @Test
+    fun testFindNodeInTheSecondLayer() {
+        val firstNode1 = Node(8, null)
+        val firstNode2 = Node(9, null)
+        val secondNode1 = Node(126, null)
+        val secondNode2 = Node(127, null)
+        val thirdNode1 = Node(90753, null)
+        val thirdNode2 = Node(90754, null)
+        val graph = Graph(listOf(Node(88, listOf(firstNode1, firstNode2)),
+                Node(126126, listOf(secondNode1, secondNode2)),
+                Node(9075390753, listOf(thirdNode1, thirdNode2))))
+
+        assertEquals(firstNode1, graph.findNode(8))
+        assertEquals(firstNode2, graph.findNode(9))
+        assertEquals(secondNode1, graph.findNode(126))
+        assertEquals(secondNode2, graph.findNode(127))
+        assertEquals(thirdNode1, graph.findNode(90753))
+        assertEquals(thirdNode2, graph.findNode(90754))
+        assertEquals(null, graph.findNode(1))
     }
 }
 
