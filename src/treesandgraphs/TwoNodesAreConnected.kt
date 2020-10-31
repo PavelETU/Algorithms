@@ -25,6 +25,7 @@ class TwoNodesAreConnected {
                 if (node.value == nodeToFind) {
                     return node
                 }
+                queue.add(node)
             }
         }
         return null
@@ -61,6 +62,26 @@ class TwoNodesAreConnected {
         assertEquals(secondNode2, graph.findNode(127))
         assertEquals(thirdNode1, graph.findNode(90753))
         assertEquals(thirdNode2, graph.findNode(90754))
+        assertEquals(null, graph.findNode(1))
+    }
+
+    @Test
+    fun testFindNodeInDeepLevels() {
+        val firstNode = Node(8, null)
+        val secondNode = Node(126, null)
+        val thirdNode = Node(90753, null)
+        val graph = Graph(listOf(Node(88,
+                listOf(Node(888, listOf(Node(8888, listOf(Node(88888, listOf(firstNode)))))))),
+                Node(126126, listOf(Node(127, listOf(secondNode)))),
+                Node(9075390753, listOf(Node(97, listOf(Node(98, listOf(Node(99,
+                        listOf(Node(100, listOf(Node(101,
+                                listOf(Node(102, listOf(Node(103,
+                                        listOf(Node(103, listOf(Node(104,
+                                                listOf(Node(105, listOf(thirdNode))))))))))))))))))))))))
+
+        assertEquals(firstNode, graph.findNode(8))
+        assertEquals(secondNode, graph.findNode(126))
+        assertEquals(thirdNode, graph.findNode(90753))
         assertEquals(null, graph.findNode(1))
     }
 }
